@@ -4,7 +4,7 @@
 /* global PDFLib */
 importScripts('vendor/pdf-lib/pdf-lib.min.js');
 
-const { PDFDocument, PDFName, StandardFonts, PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown, PDFOptionList, PDFSignature, PDFButton } = PDFLib;
+const { PDFDocument, PDFName, PDFRef, StandardFonts, PDFTextField, PDFCheckBox, PDFRadioGroup, PDFDropdown, PDFOptionList, PDFSignature, PDFButton } = PDFLib;
 
 function kindOf(field) {
   // The minified build mangles constructor names, so classify with instanceof.
@@ -98,6 +98,86 @@ function fontSizeOf(field) {
   return m ? Number(m[1]) : 0;
 }
 
+// pdf-lib's auto font size (0) for multi-line fields picks a huge size and pushes every line after the
+// first outside the box, so compute a size where the wrapped text really fits and set it explicitly.
+function fitMultilineSize(field, font, text) {
+  const widget = field.acroField.getWidgets()[0];
+  if (!widget) return 10;
+  const rect = widget.getRectangle();
+  const width = Math.max(1, rect.width - 6);
+  const height = Math.max(1, rect.height - 4);
+  const lineHeight = 1.15;
+  const countLines = (size) => {
+    let lines = 0;
+    for (const para of String(text).split(/\r\n|\r|\n/)) {
+      const words = para.split(' ');
+      let line = '';
+      lines += 1;
+      for (const word of words) {
+        const candidate = line ? `${line} ${word}` : word;
+        if (font.widthOfTextAtSize(candidate, size) <= width || !line) line = candidate;
+        else { lines += 1; line = word; }
+      }
+    }
+    return lines;
+  };
+  for (let size = 12; size >= 4; size -= 0.5) {
+    if (countLines(size) * size * lineHeight <= height) return size;
+  }
+  return 4;
+}
+
+// Auto size (0) or a size the text no longer fits at (pdf-lib writes its oversized guess into the DA): shrink.
+function fitMultiline(field, font, text) {
+  if (!text) return;
+  const current = fontSizeOf(field);
+  const fitted = fitMultilineSize(field, font, text);
+  if (current === 0 || current > fitted) field.setFontSize(fitted);
+}
+
+// Widgets with no normal appearance make pdf-lib's flatten() and removeField() throw ("Unexpected N type").
+// Give them an empty appearance so they can be drawn (as nothing) or removed cleanly.
+function ensureAppearance(doc, widget) {
+  try { widget.getNormalAppearance(); return true; } catch { /* no /AP /N: repair below */ }
+  try {
+    const r = widget.getRectangle();
+    const xo = doc.context.formXObject([], { BBox: [0, 0, Math.max(1, r.width), Math.max(1, r.height)] });
+    widget.setNormalAppearance(doc.context.register(xo));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Remove a field even when pdf-lib's own removeField cannot (widget without a page or appearance).
+function removeFieldSafely(form, field) {
+  try { form.removeField(field); return true; } catch { /* fall back to detaching it from the field tree */ }
+  try {
+    const refs = [];
+    const kids = field.acroField.normalizedEntries().Kids;
+    if (kids) for (let i = 0; i < kids.size(); i++) { const k = kids.get(i); if (k instanceof PDFRef) refs.push(k); }
+    refs.push(field.ref);
+    for (const page of form.doc.getPages()) for (const ref of refs) { try { page.node.removeAnnot(ref); } catch { /* ignore */ } }
+    form.acroForm.removeField(field.acroField);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// pdf-lib leaves the removed widgets' references in each page's /Annots; drop the ones that no longer resolve.
+function pruneAnnots(doc) {
+  for (const page of doc.getPages()) {
+    let annots;
+    try { annots = page.node.Annots(); } catch { continue; }
+    if (!annots) continue;
+    for (let i = annots.size() - 1; i >= 0; i--) {
+      const ref = annots.get(i);
+      if (ref instanceof PDFRef && !doc.context.lookup(ref)) annots.remove(i);
+    }
+  }
+}
+
 function applyValue(form, font, v) {
   const field = form.getField(v.name);
   const kind = kindOf(field);
@@ -110,8 +190,10 @@ function applyValue(form, font, v) {
       throw Object.assign(new Error(`text was cut to the field's limit of ${max} characters`), { partial: () => field.setText(text) });
     }
     field.setText(text);
-    // Long single-line text: switch to auto font size (0) so it shrinks to fit the box.
-    if (text && !field.isMultiline() && !field.isCombed()) {
+    if (field.isMultiline()) {
+      fitMultiline(field, font, text);
+    } else if (text && !field.isCombed()) {
+      // Long single-line text: switch to auto font size (0) so it shrinks to fit the box.
       const size = fontSizeOf(field) || 12;
       const widget = field.acroField.getWidgets()[0];
       if (widget && font.widthOfTextAtSize(text, size) > widget.getRectangle().width - 4) field.setFontSize(0);
@@ -155,7 +237,11 @@ async function save(bytes, values, flatten, flattenOnly, progress) {
     const kind = kindOf(field);
     if (kind === 'signature' || kind === 'button') continue;
     try {
-      if (field.needsAppearancesUpdate()) field.defaultUpdateAppearances(font);
+      if (field.needsAppearancesUpdate()) {
+        // Prefilled multi-line fields with auto size get the same fitted size as the ones typed here.
+        if (kind === 'text' && field.isMultiline()) fitMultiline(field, font, field.getText() || '');
+        field.defaultUpdateAppearances(font);
+      }
     } catch (err) {
       warnings.push({ field: field.getName(), message: `could not draw the value (${err.message || err})` });
     }
@@ -167,16 +253,22 @@ async function save(bytes, values, flatten, flattenOnly, progress) {
     for (const field of form.getFields()) {
       const kind = kindOf(field);
       let ok = true;
-      try {
-        for (const w of field.acroField.getWidgets()) { form.findWidgetPage(w); form.findWidgetAppearanceRef(field, w); }
-      } catch { ok = false; }
+      for (const w of field.acroField.getWidgets()) {
+        if (!ensureAppearance(doc, w)) ok = false;
+        try { form.findWidgetPage(w); form.findWidgetAppearanceRef(field, w); } catch { ok = false; }
+      }
       if (!ok || kind === 'signature') {
         if (kind === 'signature') warnings.push({ field: field.getName(), message: 'signature field skipped and removed (signing is not supported)' });
         else warnings.push({ field: field.getName(), message: 'removed because it has no drawable appearance' });
-        try { form.removeField(field); } catch { /* ignore */ }
+        if (!removeFieldSafely(form, field)) warnings.push({ field: field.getName(), message: 'could not be removed; it was left as is' });
       }
     }
-    form.flatten({ updateFieldAppearances: false });
+    try {
+      form.flatten({ updateFieldAppearances: false });
+    } catch (err) {
+      throw Object.assign(new Error(`the form could not be flattened (${err.message || err}). Try saving with "Flatten after filling" off.`), { code: 'flatten' });
+    }
+    pruneAnnots(doc);
   }
   progress(0.85);
   const out = await doc.save();

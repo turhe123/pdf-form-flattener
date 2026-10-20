@@ -43,6 +43,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localho
 
 // Tiny helpers tools can import: `import { toast, downloadBlob, formatBytes } from './site.js'`
 export function toast(message, ms = 2400) {
+  document.querySelectorAll('.toast').forEach((t) => t.remove()); // one toast at a time, never overlapping
   const el = document.createElement('div');
   el.className = 'toast';
   el.setAttribute('role', 'status');

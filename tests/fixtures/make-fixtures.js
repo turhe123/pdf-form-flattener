@@ -2,7 +2,7 @@
 // Run from the tool folder: node tests/fixtures/make-fixtures.js
 const fs = require('fs');
 const path = require('path');
-const { PDFDocument, StandardFonts, rgb } = require('../../vendor/pdf-lib/pdf-lib.min.js');
+const { PDFDocument, StandardFonts, rgb, PDFString } = require('../../vendor/pdf-lib/pdf-lib.min.js');
 
 const out = (name) => path.join(__dirname, name);
 
@@ -63,8 +63,30 @@ async function encrypted() {
   fs.writeFileSync(out('encrypted.pdf'), Buffer.from(patched, 'latin1'));
 }
 
+// A short form whose unsigned signature field has no appearance stream (common in generated forms); the text
+// field has a multi-line box with auto font size. Both used to break flattening.
+async function signatureForm() {
+  const doc = await PDFDocument.create();
+  doc.setTitle('Signature Demo');
+  const page = doc.addPage([595, 842]);
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const form = doc.getForm();
+  page.drawText('Signature Demo - fictional sample form', { x: 50, y: 780, size: 14, font });
+  form.createTextField('Applicant').addToPage(page, { x: 50, y: 700, width: 300, height: 24 });
+  const notes = form.createTextField('Notes');
+  notes.enableMultiline();
+  notes.addToPage(page, { x: 50, y: 600, width: 400, height: 60 });
+  const sig = doc.context.obj({ FT: 'Sig', T: PDFString.of('Signature'), Type: 'Annot', Subtype: 'Widget', Rect: [50, 480, 300, 540], F: 4, P: page.ref });
+  const sigRef = doc.context.register(sig);
+  form.acroForm.addField(sigRef);
+  page.node.addAnnot(sigRef);
+  form.updateFieldAppearances(font);
+  fs.writeFileSync(out('signature-form.pdf'), await doc.save({ updateFieldAppearances: false }));
+}
+
 (async () => {
   await tenantForm();
   await encrypted();
+  await signatureForm();
   console.log('fixtures written');
 })();

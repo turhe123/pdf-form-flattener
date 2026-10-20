@@ -45,6 +45,25 @@ function pdfText(bytes) {
 const hex = (s) => Buffer.from(s, 'latin1').toString('hex').toUpperCase();
 const containsText = (bytes, s) => { const t = pdfText(bytes); return t.includes(s) || t.toUpperCase().includes(hex(s)); };
 
+// Font size and text positions of the appearance stream that draws `s` (hex encoded, as pdf-lib writes it).
+function drawnText(bytes, s) {
+  const raw = Buffer.from(bytes).toString('latin1');
+  const re = /stream\r?\n/g;
+  let m;
+  while ((m = re.exec(raw))) {
+    const start = m.index + m[0].length;
+    const end = raw.indexOf('endstream', start);
+    if (end < 0) break;
+    let text;
+    try { text = zlib.inflateSync(Buffer.from(raw.slice(start, end), 'latin1')).toString('latin1'); } catch { text = raw.slice(start, end); }
+    if (!text.toUpperCase().includes(hex(s))) continue;
+    const size = Number((text.match(/([\d.]+)\s+Tf/) || [])[1]);
+    const ys = [...text.matchAll(/1 0 0 1 [\d.-]+ ([\d.-]+) Tm/g)].map((x) => Number(x[1]));
+    return { size, ys };
+  }
+  return null;
+}
+
 test.describe('PDF Form Filler and Flattener', () => {
   test('loading the bundled form lists its fields with types', async ({ page }) => {
     await openForm(page);
@@ -100,6 +119,46 @@ test.describe('PDF Form Filler and Flattener', () => {
     // The download button in the result card offers the same file again.
     const [again] = await Promise.all([page.waitForEvent('download'), page.click('#download')]);
     expect(again.suggestedFilename()).toBe('tenant-application_filled.pdf');
+  });
+
+  test('multi-line text stays inside its box at a readable size when flattened', async ({ page }) => {
+    await openForm(page);
+    await page.getByLabel('Current address').fill('12 Sample Street\nExampletown, EX 00000\nThird line');
+    const bytes = await saveAndDownload(page);
+    expect((await PDFDocument.load(bytes)).getForm().getFields()).toHaveLength(0);
+    // pdf-lib's auto size used to pick ~53 pt and push lines 2+ below the 63 pt box, where they were clipped.
+    const drawn = drawnText(bytes, 'Exampletown, EX 00000');
+    expect(drawn, 'the second line is drawn').not.toBeNull();
+    expect(drawn.size).toBeGreaterThanOrEqual(4);
+    expect(drawn.size).toBeLessThanOrEqual(14);
+    expect(drawn.ys).toHaveLength(3);
+    for (const y of drawn.ys) { expect(y).toBeGreaterThanOrEqual(0); expect(y).toBeLessThanOrEqual(63); }
+  });
+
+  test('a form with an unsigned signature field that has no appearance still flattens', async ({ page }) => {
+    await page.goto('./');
+    await page.setInputFiles('#file-input', fixture('signature-form.pdf'));
+    await expect(page.locator('#summary')).toHaveText(/2 fields · 0 filled · 1 page · 1 skipped/);
+    await expect(field(page, 'Signature').locator('.ff__type').first()).toHaveText('Signature');
+    await expect(field(page, 'Signature')).toContainText('skipped');
+    await page.getByLabel('Applicant').fill('Casey Placeholder');
+    await page.getByLabel('Notes').fill('first line\nsecond line');
+    const [download] = await Promise.all([page.waitForEvent('download'), page.click('#save')]);
+    expect(download.suggestedFilename()).toBe('signature-form_filled.pdf');
+    const bytes = fs.readFileSync(await download.path());
+    const doc = await PDFDocument.load(bytes);
+    expect(doc.getForm().getFields()).toHaveLength(0);
+    expect(containsText(bytes, 'Casey Placeholder')).toBe(true);
+    expect(containsText(bytes, 'second line')).toBe(true);
+    // No stale widget references are left on the page after flattening.
+    const annots = doc.getPage(0).node.Annots();
+    expect(annots ? annots.size() : 0).toBe(0);
+    await expect(page.locator('#results .alert--error')).toHaveCount(0);
+    await expect(page.locator('#warnings')).toContainText('Signature: signature field skipped');
+    // Flatten only works on the same file too.
+    await page.locator('label.seg', { hasText: 'Flatten only' }).click();
+    const [again] = await Promise.all([page.waitForEvent('download'), page.click('#save')]);
+    expect((await PDFDocument.load(fs.readFileSync(await again.path()))).getForm().getFields()).toHaveLength(0);
   });
 
   test('flatten only mode flattens the form as is', async ({ page }) => {
