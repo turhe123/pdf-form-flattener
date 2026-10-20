@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- SEO:START — the builder rewrites title / description / keywords for search (see CLAUDE.md) -->
+  <title>PDF Form Filler and Flattener – Free, Private, In Your Browser</title>
+  <meta name="description" content="Fill in PDF form fields and flatten them into plain, non-editable pages in your browser. No upload, no account, no daily limits, and it works offline.">
+  <meta name="keywords" content="fill pdf form online, flatten pdf, flatten pdf form fields, make pdf form non editable, fill and save pdf free, lock pdf form fields, pdf form filler, private pdf tool">
+  <!-- SEO:END -->
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0e0f14" media="(prefers-color-scheme: dark)">
+  <link rel="canonical" href="https://turhe123.github.io/pdf-form-flattener/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PDF Form Filler and Flattener – Free, Private, In Your Browser">
+  <meta property="og:description" content="Fill in PDF form fields and flatten them into plain pages in your browser, with no upload. Free and open source, nothing is uploaded, works offline.">
+  <meta property="og:url" content="https://turhe123.github.io/pdf-form-flattener/">
+  <meta property="og:image" content="https://turhe123.github.io/pdf-form-flattener/docs/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="PDF Form Filler and Flattener">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PDF Form Filler and Flattener – Free, Private, In Your Browser">
+  <meta name="twitter:description" content="Fill in PDF form fields and flatten them into plain pages in your browser, with no upload. Free and open source, nothing is uploaded, works offline.">
+  <meta name="twitter:image" content="https://turhe123.github.io/pdf-form-flattener/docs/og.png">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "PDF Form Filler and Flattener",
+    "alternateName": "PDF Form Filler and Flattener – Free, Private, In Your Browser",
+    "description": "Fill in PDF form fields and flatten them into plain pages in your browser, with no upload. Free and open source, nothing is uploaded, works offline.",
+    "url": "https://turhe123.github.io/pdf-form-flattener/",
+    "image": "https://turhe123.github.io/pdf-form-flattener/docs/og.png",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "browserRequirements": "Requires JavaScript. Works offline after the first visit.",
+    "isAccessibleForFree": true,
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "license": "https://opensource.org/licenses/MIT",
+    "softwareVersion": "1.0.0",
+    "author": { "@type": "Person", "name": "Or Davidai Bachar", "url": "https://github.com/turhe123" },
+    "sameAs": ["https://github.com/turhe123/pdf-form-flattener"]
+  }
+  </script>
+  <script src="vendor/pdf-lib/pdf-lib.min.js" defer></script>
+  <!-- Page views are counted with GoatCounter: no cookies, no personal data, open source. -->
+  <script data-goatcounter="https://turhe123.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#tool">Skip to the tool</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="./" aria-label="PDF Form Filler and Flattener home">
+        <img class="brand__icon" src="icon.svg" alt="" width="28" height="28">
+        <span class="brand__name">PDF Form Filler and Flattener</span>
+      </a>
+      <nav class="site-nav" aria-label="Page">
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/turhe123/pdf-form-flattener" rel="noopener">GitHub</a>
+        <a href="https://turhe123.github.io/web-tools/" rel="noopener" class="site-nav__more">More tools</a>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero container">
+      <!-- HERO:START — the builder may refine the headline and promise; keep the trust badges -->
+      <h1 class="hero__title">Fill and flatten PDF forms, privately</h1>
+      <p class="hero__lead">Fill in PDF form fields and flatten them into plain pages in your browser, with no upload. Your tax, rental or HR form never leaves this device.</p>
+      <!-- HERO:END -->
+      <ul class="badges" aria-label="Why this tool is safe to use">
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v6c0 4 3 7 7 9 4-2 7-5 7-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Runs in your browser, files never leave your device</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 16 0 8 8 0 0 0-16 0z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Free, open source, no account, no ads</li>
+        <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 9.5 17 19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Works offline after the first visit</li>
+      </ul>
+    </section>
+
+    <section class="container" id="tool" aria-labelledby="tool-title">
+      <div class="tool-card">
+        <!-- TOOL:START — the builder replaces everything between these markers with the real tool UI -->
+        <h2 id="tool-title" class="visually-hidden">Fill and flatten a PDF form</h2>
+        <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Choose a PDF form or drop it here">
+          <label class="visually-hidden" for="file-input">Choose a PDF form</label>
+          <input class="dropzone__input" id="file-input" type="file" accept=".pdf,application/pdf" aria-describedby="dropzone-hint">
+          <svg class="dropzone__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <p class="dropzone__title">Drop a PDF form here or <span class="link">choose a file</span></p>
+          <p class="dropzone__hint" id="dropzone-hint">One PDF with fillable fields. Nothing is uploaded; everything happens on this device.</p>
+        </div>
+        <div class="fill" id="options" hidden>
+          <div class="fill__head">
+            <div class="fill__file">
+              <div class="result__name" id="file-name"></div>
+              <div class="result__info" id="summary" aria-live="polite"></div>
+            </div>
+            <div class="fill__modes" role="radiogroup" aria-label="Mode">
+              <label class="seg"><input type="radio" name="mode" value="fill" id="mode-fill" checked> <span>Fill in fields</span></label>
+              <label class="seg"><input type="radio" name="mode" value="flatten-only" id="mode-flatten-only"> <span>Flatten only</span></label>
+            </div>
+          </div>
+          <div class="fill__notice" id="notice" hidden></div>
+          <div class="fill__fields" id="form-panel"></div>
+          <div class="fill__actions">
+            <label class="switch" for="flatten">
+              <input type="checkbox" role="switch" id="flatten" checked aria-describedby="flatten-hint">
+              <span class="switch__track" aria-hidden="true"></span>
+              <span>Flatten after filling</span>
+            </label>
+            <span class="field__hint" id="flatten-hint">Flattened fields become fixed page content that can no longer be edited.</span>
+            <div class="fill__buttons">
+              <button class="btn btn--ghost" type="button" id="reset">Reset</button>
+              <button class="btn btn--primary" type="button" id="save">Save PDF</button>
+            </div>
+          </div>
+          <div class="progress" id="progress" hidden role="progressbar" aria-label="Saving" aria-valuemin="0" aria-valuemax="100"><span></span></div>
+        </div>
+        <div class="results" id="results" aria-live="polite"></div>
+        <!-- TOOL:END -->
+      </div>
+    </section>
+
+    <section class="container section" id="how" aria-labelledby="how-title">
+      <h2 id="how-title" class="section__title">How it works</h2>
+      <!-- HOW:START — three honest steps for this tool -->
+      <ol class="steps">
+        <li><strong>Open your PDF form.</strong> Drop a fillable PDF on the page. The tool reads it on your device and lists every form field, grouped by page.</li>
+        <li><strong>Fill in the fields.</strong> Type text, tick checkboxes, pick radio options and dropdown values. Leave "Flatten after filling" on to lock the answers, or choose "Flatten only" to lock a form that is already filled.</li>
+        <li><strong>Save the PDF.</strong> Press Save PDF and you get <em>yourfile_filled.pdf</em>. Any field that could not be filled is listed so you can check it before sending.</li>
+      </ol>
+      <!-- HOW:END -->
+    </section>
+
+    <section class="container section" id="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title" class="section__title">Questions, answered</h2>
+      <!-- FAQ:START — 4 to 6 questions; keep the privacy, offline and AI answers -->
+      <details class="faq" open>
+        <summary>Are my files uploaded anywhere?</summary>
+        <p>No. PDF Form Filler and Flattener runs entirely in your browser. Your form and everything you type into it are read into memory on your device, processed with JavaScript, and never sent to a server. You can disconnect from the internet and it keeps working.</p>
+      </details>
+      <details class="faq">
+        <summary>What does flattening a PDF form do?</summary>
+        <p>Flattening draws each field's value onto the page as normal content and removes the interactive field. The result looks the same but can no longer be edited in a PDF reader, which is what many offices ask for when they reject forms that can be changed.</p>
+      </details>
+      <details class="faq">
+        <summary>Why does it say my PDF has no form fields?</summary>
+        <p>The tool fills interactive (AcroForm) fields only. Scanned forms and PDFs with printed blank lines have no fields to fill, and XFA forms made with some older designer apps are not supported. It does not add free text or signatures to a page.</p>
+      </details>
+      <details class="faq">
+        <summary>Some characters were reported as unsupported. Why?</summary>
+        <p>Values are drawn with the standard Helvetica font built into every PDF reader, which covers Western European letters. Characters outside that range, such as emoji or non-Latin scripts, are flagged per field and you can replace them with the closest plain letters before saving.</p>
+      </details>
+      <details class="faq">
+        <summary>Is it really free? Does it work offline?</summary>
+        <p>Yes and yes. It is open source under the MIT license, with no account, no limits and no ads. After your first visit the page is cached by a service worker, so it loads without a connection, and you can install it from your browser's menu as an app.</p>
+      </details>
+      <details class="faq">
+        <summary>Was this written by AI?</summary>
+        <p>Yes. PDF Form Filler and Flattener was generated by Claude Code from a written specification inside an automated pipeline, with a test suite that runs in a real browser. The full source is on GitHub, so you can read every line before you trust it with your files.</p>
+      </details>
+      <!-- FAQ:END -->
+    </section>
+
+    <section class="container section" id="support">
+      <div class="support-card">
+        <h2 class="section__title">Built by one person, given away for free</h2>
+        <p>PDF Form Filler and Flattener is a free alternative to paid tools like Smallpdf and Sejda Flatten PDF. If it earns a place in your bookmarks, a coffee keeps the updates coming.</p>
+        <a class="btn btn--kofi" href="https://ko-fi.com/leodavidai" rel="noopener">☕ Support Or on Ko-fi</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p class="site-footer__links">
+        <a href="https://github.com/turhe123/pdf-form-flattener" rel="noopener">Source on GitHub</a> ·
+        <a href="https://github.com/turhe123/pdf-form-flattener/issues" rel="noopener">Report a bug</a> ·
+        <a href="https://turhe123.github.io/web-tools/" rel="noopener">More free web tools</a> ·
+        <a href="https://ko-fi.com/leodavidai" rel="noopener">Ko-fi</a>
+      </p>
+      <p class="site-footer__disclosure"><strong>Built with AI.</strong> PDF Form Filler and Flattener was written by Claude Code inside an automated pipeline from a plain-English spec, as a clean-room implementation: no code or assets from any commercial product. It runs entirely in your browser, makes no network requests except an anonymous, cookieless page-view count, and has had less human review than hand-written software. Bug reports and pull requests are welcome.</p>
+      <p class="site-footer__copy">© 2026 Or Davidai Bachar · MIT License · <span id="sw-status" class="sw-status" aria-live="polite"></span></p>
+    </div>
+  </footer>
+
+  <script type="module" src="site.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

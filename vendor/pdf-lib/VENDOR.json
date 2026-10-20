@@ -1,0 +1,10 @@
+{
+  "name": "pdf-lib",
+  "version": "1.17.1",
+  "license": "MIT",
+  "entry": "vendor/pdf-lib/pdf-lib.min.js (classic script, global PDFLib)",
+  "sources": {
+    "pdf-lib.min.js": "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js",
+    "LICENSE": "https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/LICENSE.md"
+  }
+}
